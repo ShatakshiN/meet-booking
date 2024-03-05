@@ -46,8 +46,42 @@ app.post('/add-users', async(req,res,next)=>{
     }
 })
 
+app.get('/add-users',async(req,res,next) =>{
+    try{
+        const users = await SlotUsers.findAll()
+        const slot = await Slots.findAll()
+        res.status(200).json({allUsersOnScreen : users, slot})
+    }catch(error){
+        res.status(500).json({error : error.message})
+    }
 
+})
 
+app.delete('/delete-users', async (req,res,next)=>{
+    const userId = req.params.userId
+
+    try{
+        const user = await SlotUsers.findByPk(userId);
+       
+        if (!user){
+            throw new Error('userId or slot not found');
+        }
+
+        await user.destroy()            
+        res.status(200).json({error : 'user deleted successfully'})
+
+    }catch(error){
+
+        res.status(500).json({error  : error.message})
+       
+    }
+
+})
+
+app.user((req,res,next)=>{
+    res.status(404);
+    res.send('<h1>page not found</h1>')
+};)
 Slots.belongsTo(SlotUsers,{constraints: true, onDelete: 'CASCADE'}) //ondelete : cascade means when we del user, slot will also be gone
 
 sequelize.sync()
